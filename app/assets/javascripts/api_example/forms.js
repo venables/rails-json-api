@@ -1,6 +1,11 @@
 'use strict';
 
 $(function() {
+  var reset = function() {
+    $('#list-users-results').html('')
+    $('#get-user-results').html('')
+  }
+
   $(document).on('submit', 'form#register', function(e) {
     e.preventDefault();
 
@@ -54,6 +59,7 @@ $(function() {
     API.del('/api/v1/sessions', function(err) {
       if (!err) {
         Session.signOut();
+        reset();
       }
     });
   });
