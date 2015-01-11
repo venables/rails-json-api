@@ -1,13 +1,11 @@
 class Session
-  include ActiveModel::Model
-  include ActiveModel::Serialization
+  include SignedValue
 
-  AUTH_KEY = 'auth_token'
-  SIGNING_KEY = Rails.application.secrets.secret_key_base
   TTL = 3_600 # 1 hour
 
-  attr_writer :token
-  attr_accessor :user
+  has_signed_value :token
+
+  attr_reader :user
 
   def initialize(token, user)
     @token = token
@@ -23,23 +21,19 @@ class Session
     end
   end
 
-  def self.from_public_token(jwt_string)
-    session_token = JWT.decode(jwt_string, SIGNING_KEY, 'HS512')[0][AUTH_KEY]
-    user_id = Redis.current.get(redis_key_for_token(session_token))
+  def self.generate_from_signed_token(signed_token)
+    token_value = token_from_signed_token(signed_token)
+    user_id = Redis.current.get(redis_key_for_token(token_value))
 
     if user = User.find(user_id)
-      session = Session.new(session_token, user)
+      session = Session.new(token_value, user)
       session.extend
       session
     end
 
   rescue
-    Rails.logger.error('Session.from_public_token error')
+    Rails.logger.error('Session.generate_from_signed_token error')
     nil
-  end
-
-  def public_token
-    JWT.encode({ AUTH_KEY => @token }, SIGNING_KEY, "HS512")
   end
 
   def save
@@ -57,6 +51,10 @@ class Session
   end
 
   private
+
+  def token
+    @token
+  end
 
   def self.redis_key_for_token(token)
     'session:' + token

@@ -49,7 +49,7 @@ module Authentication
     return @current_session if @current_session
 
     authenticate_with_http_token do |token, options|
-      @current_session = Session.from_public_token(token)
+      @current_session = Session.generate_from_signed_token(token)
     end
   end
 
