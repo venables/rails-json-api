@@ -1,3 +1,3 @@
 json.errors do
-  json.messages @user.errors.to_a
+  json.messages @password_reset.user.errors.to_a
 end

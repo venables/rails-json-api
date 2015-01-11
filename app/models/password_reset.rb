@@ -1,9 +1,8 @@
-class Session
+class PasswordReset
   include RedisStorage
-  include SignedValue
+  include ActiveModel::Serialization
 
-  persists_to_redis :token, value: :user_id, prefix: 'session', unique: true, expires: 3_600
-  has_signed_value :token
+  persists_to_redis :token, value: :user_id, prefix: 'password', unique: true, expires: 3_600
 
   attr_reader :user
   delegate :id, to: :user, prefix: true
@@ -17,29 +16,24 @@ class Session
     return unless user
 
     random_token = SecureRandom.urlsafe_base64(32)
-    session = new(random_token, user)
+    password_reset = PasswordReset.new(random_token, user)
 
-    if session.save
-      session
+    if password_reset.save
+      password_reset
     end
   end
 
-  def self.generate_from_signed_token(signed_token)
-    token_value = token_from_signed_token(signed_token)
+  def self.load_from_token(token_value)
     user_id = get_user_id_from_key(token_value)
 
     if user = User.where(id: user_id).first
-      session = new(token_value, user)
-      session.renew
-      session
+      new(token_value, user)
     end
 
   rescue
     Rails.logger.error('Session.generate_from_signed_token error')
     nil
   end
-
-  private
 
   def token
     @token

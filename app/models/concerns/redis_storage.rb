@@ -5,7 +5,7 @@ module RedisStorage
     def persists_to_redis(attribute, opts = {})
       prefix = opts[:prefix].present? ? "#{opts[:prefix]}:" : ''
 
-      define_singleton_method :find do |key|
+      define_singleton_method "get_#{opts[:value]}_from_key" do |key|
         redis_key = prefix + key
         Redis.current.get(redis_key)
       end

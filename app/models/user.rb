@@ -1,14 +1,8 @@
 class User < ActiveRecord::Base
-  include AttributeTokenizer
-
   has_secure_password
 
   validates :email, presence: true, uniqueness: true, format: /.+\@.+\..+/
   validates :password, length: { minimum: 6 }
-
-  before_save do
-    generate_unique_token(:password_reset_token)
-  end
 
   # Public: Authenticate a user with a given email and password.
   #

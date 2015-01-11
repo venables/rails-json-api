@@ -6,9 +6,9 @@ class UserMailer < ActionMailer::Base
     mail to: user.email, from: "matt@beaker.com"
   end
 
-  def reset_password_email(user)
+  def reset_password_email(user, token)
     @user = user
-    @token = @user.password_reset_token
+    @token = token
     mail to: user.email
   end
 
