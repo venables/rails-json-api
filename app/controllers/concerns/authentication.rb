@@ -104,7 +104,7 @@ module Authentication
   # Returns the signed-in user.
   def sign_in(user)
     sign_out
-    user.update_attributes(last_login_at: Time.now.utc)
+    user.touch(:last_login_at)
     @current_session = Session.generate_for_user!(user)
   end
 
