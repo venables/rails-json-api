@@ -37,11 +37,11 @@ class Session
   end
 
   def save
-    Redis.current.setex(redis_key, TTL, redis_value)
+    Redis.current.set(redis_key, redis_value, { ex: redis_ttl, nx: true })
   end
 
   def extend
-    Redis.current.expire(redis_key, TTL)
+    Redis.current.expire(redis_key, redis_ttl)
   end
 
   def destroy
@@ -66,5 +66,9 @@ class Session
 
   def redis_value
     self.user.id
+  end
+
+  def redis_ttl
+    3_600
   end
 end
