@@ -3,7 +3,7 @@ rails-json-api
 
 [![Code Climate](https://codeclimate.com/github/venables/rails-json-api.png)](https://codeclimate.com/github/venables/rails-json-api)
 
-A barebones, stateless, RESTFUL Rails JSON API app, following current best practices with a focus on security.
+A barebones, stateless, RESTFUL Rails JSON API server, following current best practices with a focus on security.
 
 Details
 -------
