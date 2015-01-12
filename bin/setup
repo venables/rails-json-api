@@ -8,16 +8,16 @@ FOREMAN_PORT=5000
 bundle
 
 # Set up heroku remotes
-git remote add heroku git@heroku.com:beaker-dev.git
+git remote add heroku git@heroku.com:rails_json_api-dev.git
 
 # Set up database
-createuser -s beaker
+createuser -s rails_json_api
 rake db:setup
 
 # Set up configurable environment variables for Foreman
 if [ ! -f .env ]; then
   echo "RACK_ENV=development" > .env
-  echo "REDIS_NAMESPACE=beaker" >> .env
+  echo "REDIS_NAMESPACE=rails_json_api" >> .env
   echo "REDIS_URI=redis://localhost:6379" >> .env
   echo "SECRET_KEY_BASE=$(rake secret)" >> .env
 fi

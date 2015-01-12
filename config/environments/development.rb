@@ -28,7 +28,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :letter_opener
 
   # Set the default host for URLs
-  config.action_mailer.default_url_options = { host: 'beaker.dev' }
+  config.action_mailer.default_url_options = { host: 'rails_json_api.dev' }
 
   # Enable stdout logger
   config.logger = ActiveSupport::Logger.new($stdout)

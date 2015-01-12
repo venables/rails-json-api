@@ -26,56 +26,15 @@ en:
         email: "Email address"
         password: "Password"
 
-  authentication:
-    required: "You must be signed in to do that"
-
   layouts:
     application:
-      title: "Beaker"
-
-  pages:
-    home:
-      title: "Welcome"
-      my_profile: "My Profile"
-      sign_up: "Sign up"
-      sign_in: "Sign in"
-      signed_in_as: "Signed in as %{email}"
-      sign_out: "Sign out"
-      users: "Users"
-
-  password_resets:
-    create:
-      success: "Instructions to reset your password have been emailed to you."
-    edit:
-      <<: *user_attributes
-      title: "Reset my password"
-      submit: "Reset my password"
-    new:
-      <<: *user_attributes
-      title: "Forgot password"
-      submit: "Reset my password"
-    update:
-      success: "Your password has been updated"
-      failure: "The link you clicked has expired or has already been used."
-
-  sessions:
-    create:
-      success: "Welcome back!"
-      failure: "Invalid email or password"
-    destroy:
-      success: "Goodbye"
-    new:
-      <<: *user_attributes
-      title: "Sign in"
-      remember_me: "Remember me"
-      sign_in: "Sign in"
-      forgot: "Forgot?"
+      title: "rails-json-api"
 
   user_mailer:
     founder_email:
-      subject: "Thanks for joining Beaker"
+      subject: "Thanks for joining RailsJsonApi"
       greeting: "Hey %{name},"
-      body: "My name's Matt - I'm the founder of Beaker. I just wanted to shoot you an email thanking you for signing up."
+      body: "My name's Matt - I'm the founder of RailsJsonApi. I just wanted to shoot you an email thanking you for signing up."
       body2: "Please feel free to email me (this is my real email address) with any comments or feedback (good or bad!) that you have with our service.  We want to make sure you have a great experience here."
       closing: "Talk to you soon,"
       signature: "- Matt"
@@ -85,11 +44,4 @@ en:
       intro: "We heard you forgot your password.  To reset it, just visit the following URL"
       closing: "Didn't forget your password? Don't worry, just ignore this email."
       love: "Love,"
-      signature: "The Beaker team"
-
-  users:
-    create:
-      success: "Welcome to our site"
-    new:
-      title: "Sign up"
-      sign_up: "Sign up"
+      signature: "The RailsJsonApi team"

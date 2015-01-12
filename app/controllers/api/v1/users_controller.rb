@@ -14,7 +14,7 @@ class Api::V1::UsersController < Api::V1::ApplicationController
     @user = User.new(user_params)
     if @user.save
       @session = sign_in(@user)
-      UserMailer.founder_email(@user).deliver_later(wait: 10.seconds)
+      UserMailer.founder_email(@user).deliver_later(wait: 2.hours)
     else
       render 'error', status: :bad_request
     end

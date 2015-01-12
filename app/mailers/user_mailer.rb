@@ -1,9 +1,9 @@
 class UserMailer < ActionMailer::Base
-  default from: "hello@beaker.com"
+  default from: "hello@rails_json_api.com"
 
   def founder_email(user)
     @user = user
-    mail to: user.email, from: "matt@beaker.com"
+    mail to: user.email, from: "matt@rails_json_api.com"
   end
 
   def reset_password_email(user, token)

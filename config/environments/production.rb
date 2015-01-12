@@ -66,5 +66,5 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Set the default host for URLs
-  config.action_mailer.default_url_options = { host: 'beaker.com' }
+  config.action_mailer.default_url_options = { host: 'rails_json_api.com' }
 end
