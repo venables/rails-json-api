@@ -1,8 +1,6 @@
 module Authentication
   extend ActiveSupport::Concern
 
-  AUTH_KEY = :user_token
-
   class NotAuthenticatedError < StandardError; end
 
   included do

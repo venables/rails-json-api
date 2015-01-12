@@ -6,18 +6,6 @@ end
 
 describe Authentication, type: :controller do
   let(:controller) { DummyController.new }
-  let(:user) { FactoryGirl.build(:user) }
-  let(:mock_session) { {} }
-  let(:mock_request) { double('request', session: mock_session) }
-  let(:mock_cookies) { double('cookies', signed: signed_cookies, permanent: permanent_cookies) }
-  let(:permanent_cookies) { double('permanent', signed: signed_cookies) }
-  let(:signed_cookies) { {} }
-  let(:auth_key) { DummyController::AUTH_KEY }
-
-  before do
-    allow(controller).to receive_messages(cookies: mock_cookies)
-    allow(controller).to receive_messages(session: mock_session)
-  end
 
   describe '#require_authenticated_user!' do
     context 'while signed in' do
@@ -25,12 +13,10 @@ describe Authentication, type: :controller do
         allow(controller).to receive_messages(signed_in?: true)
       end
 
-      it 'does not redirect' do
-        allow(controller).to receive(:redirect_to)
-
-        controller.send(:require_authenticated_user!)
-
-        expect(controller).to_not have_received(:redirect_to)
+      it 'does not return an error' do
+        expect do
+          controller.send(:require_authenticated_user!)
+        end.not_to raise_error
       end
     end
 
@@ -42,29 +28,23 @@ describe Authentication, type: :controller do
       it 'raises a 403 error' do
         expect do
           controller.send(:require_authenticated_user!)
-        end.to raise_error(DummyController::NotAuthenticated)
+        end.to raise_error(DummyController::NotAuthenticatedError)
       end
     end
   end
 
   describe '#prevent_authenticated_user!' do
-    let(:root_path) { '/' }
-
-    before do
-      allow(controller).to receive_messages(root_path: root_path)
-    end
-
     context 'while signed in' do
       before do
         allow(controller).to receive_messages(signed_in?: true)
       end
 
-      it 'redirects to the root url' do
-        allow(controller).to receive(:redirect_to)
+      it 'returns a :forbidden status' do
+        allow(controller).to receive(:head)
 
         controller.send(:prevent_authenticated_user!)
 
-        expect(controller).to have_received(:redirect_to).with(root_path)
+        expect(controller).to have_received(:head).with(:forbidden)
       end
     end
 
@@ -74,52 +54,32 @@ describe Authentication, type: :controller do
       end
 
       it 'does nothing' do
-        allow(controller).to receive(:redirect_to)
+        allow(controller).to receive(:head)
 
         controller.send(:prevent_authenticated_user!)
 
-        expect(controller).to_not have_received(:redirect_to)
+        expect(controller).to_not have_received(:head)
       end
     end
   end
 
   describe '#current_user' do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:session) { FactoryGirl.build(:session) }
 
-    context 'without an auth session' do
-      context 'with a valid signed auth cookie' do
-        let(:signed_cookies) { { user_token: encode_auth_token(user) } }
-
-        it 'returns the user' do
-          expect(controller.current_user).to eq(user)
-        end
+    context 'with a valid authentication header and token' do
+      before do
+        allow(controller).to receive_messages(current_session: session)
       end
-
-      context 'with an invalid signed auth cookie' do
-        let(:signed_cookies) { { user_token: 'invalid' } }
-
-        it 'returns nil' do
-          expect(controller.current_user).to be_nil
-        end
-      end
-
-      context 'without a signed auth cookie' do
-        it 'returns nil' do
-          expect(controller.current_user).to be_nil
-        end
-      end
-    end
-
-    context 'with a valid auth session' do
-      let(:mock_session) { { user_token: encode_auth_token(user) } }
 
       it 'returns the user' do
-        expect(controller.current_user).to eq(user)
+        expect(controller.current_user).to eq(session.user)
       end
     end
 
-    context 'with an invalid auth session' do
-      let(:mock_session) { { user_token: 'invalid' } }
+    context 'with an session token' do
+      before do
+        allow(controller).to receive_messages(current_session: nil)
+      end
 
       it 'returns nil' do
         expect(controller.current_user).to be_nil
@@ -128,6 +88,8 @@ describe Authentication, type: :controller do
   end
 
   describe '#signed_in?' do
+    let(:user) { FactoryGirl.build(:user) }
+
     it 'returns true if a user is signed in' do
       allow(controller).to receive_messages(current_user: user)
 
@@ -142,89 +104,35 @@ describe Authentication, type: :controller do
   end
 
   describe '#sign_in' do
+    let(:user) { FactoryGirl.create(:user) }
+
     it 'logs out and sets the current_user session' do
       allow(controller).to receive(:sign_out)
-      allow(controller).to receive(:set_user_session)
+      allow(Session).to receive(:generate_for_user!)
 
       expect {
         controller.send(:sign_in, user)
       }.to change(user, :last_login_at)
 
       expect(controller).to have_received(:sign_out)
-      expect(controller).to have_received(:set_user_session)
+      expect(Session).to have_received(:generate_for_user!)
     end
   end
 
   describe '#sign_out' do
+    let(:session) { FactoryGirl.build(:session) }
+
     before do
-      controller.instance_variable_set(:@current_user, user)
+      controller.instance_variable_set(:@current_session, session)
     end
 
     it 'clears all traces of being signed in' do
-      allow(controller).to receive(:reset_session)
-      allow(mock_cookies).to receive(:delete)
+      allow(session).to receive(:destroy)
 
       controller.send(:sign_out)
 
-      expect(controller.current_user).to be_nil
-      expect(controller).to have_received(:reset_session)
-      expect(mock_cookies).to have_received(:delete).with(auth_key)
+      expect(session).to have_received(:destroy)
+      expect(controller.instance_variable_get(:@current_session)).to be_nil
     end
-  end
-
-  describe '#set_user_session' do
-    let(:user) { FactoryGirl.create(:user) }
-
-    context 'with a remember_me flag' do
-      it 'sets the session[auth_key] variable to the user id' do
-        controller.send(:set_user_session, user, true)
-
-        expect(decode_auth_token(mock_session[auth_key])).to eq(user.authentication_token)
-        expect(decode_auth_token(signed_cookies[auth_key])).to eq(user.authentication_token)
-      end
-    end
-
-    context 'without a remember_me flag' do
-      it 'sets the session[auth_key] variable to the user id' do
-        controller.send(:set_user_session, user)
-
-        expect(signed_cookies[auth_key]).to be_nil
-        expect(decode_auth_token(mock_session[auth_key])).to eq(user.authentication_token)
-      end
-    end
-  end
-
-  describe '#handle_403' do
-    let(:login_path) { '/sessions/new' }
-    let(:error_message) { 'Please log in' }
-    let(:error) { double('error', message: error_message) }
-
-    before do
-      allow(controller).to receive_messages(new_session_path: login_path)
-    end
-
-    it 'redirects to the login path' do
-      allow(controller).to receive(:redirect_to)
-
-      controller.send(:handle_403, error)
-
-      expect(controller).to have_received(:redirect_to).with(login_path, { alert: error_message })
-    end
-  end
-
-  private
-
-  # TODO: Move this all to a service
-
-  def encode_auth_token(user)
-    JWT.encode({ auth_token: user.authentication_token }, signing_key, "HS512")
-  end
-
-  def decode_auth_token(jwt_string)
-    JWT.decode(jwt_string, signing_key, 'HS512')[0]['auth_token']
-  end
-
-  def signing_key
-    Rails.application.secrets.secret_key_base
   end
 end
