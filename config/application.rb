@@ -30,5 +30,8 @@ module RailsJsonApi
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # Use Redis for ActiveSupport caching, e.g. Rails.cache
+    config.cache_store = :redis_store, "#{ENV['REDIS_URI']}/0/cache", { expires_in: 90.minutes }
   end
 end
