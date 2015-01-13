@@ -33,5 +33,8 @@ module RailsJsonApi
 
     # Use Redis for ActiveSupport caching, e.g. Rails.cache
     config.cache_store = :redis_store, "#{ENV['REDIS_URI']}/0/cache", { expires_in: 90.minutes }
+
+    # Use Rack::Attack for rate limiting
+    config.middleware.use Rack::Attack
   end
 end
