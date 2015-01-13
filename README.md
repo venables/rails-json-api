@@ -30,24 +30,6 @@ What's included out of the box:
 * List users, show given user
 * A "Thanks for signing up" welcome email from the founder, delivered ~2 hours after signup
 
-
-Wishlist:
----------
-
-* Add more test coverage
-* Rate limiting + Rate limit headers
-* Oauth server
-* Oauth signup via 3rd party services
-* Two-factor authentication
-* Error / Exception tracking
-* Default mailer settings to use Mandrill / Sendgrid
-* Admin role, section
-* Option to disable Redis, use DelayedJob / other instead
-* Add an install script to do the renaming (Step #2 below) automatically
-* Send founder email sooner in dev mode
-* Add worker auto-scaling option for Heroku
-* Deployment instructions
-
 Starting a new app
 ------------------
 
