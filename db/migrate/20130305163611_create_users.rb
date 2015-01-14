@@ -5,7 +5,7 @@ class CreateUsers < ActiveRecord::Migration
     create_table :users, id: :uuid do |t|
       t.string :email
       t.string :password_digest
-      t.datetime :last_login_at
+      t.datetime :last_login_at, null: false
 
       t.timestamps null: false
     end

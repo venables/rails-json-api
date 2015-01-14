@@ -16,7 +16,6 @@ Details
 * [Resque](https://github.com/resque/resque) ([Redis](https://github.com/resque/resque)) for background processing (using [ActiveJob](https://github.com/rails/activejob))
 * All emails go through ActiveJob + Resque
 * Session tokens are signed as [JSON Web Tokens (JWT)](http://jwt.io/)
-* Session tokens and password reset tokens are stored in redis with an expriy time
 * JSON responses are rendered using jbuilder
 * [RSpec](https://github.com/rspec/rspec) for tests
 * Built for easy deployment to [Heroku](https://www.heroku.com/)

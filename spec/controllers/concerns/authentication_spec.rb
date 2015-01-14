@@ -108,14 +108,14 @@ describe Authentication, type: :controller do
 
     it 'logs out and sets the current_user session' do
       allow(controller).to receive(:sign_out)
-      allow(Session).to receive(:generate_for_user!)
+      allow(controller.request).to receive_messages(remote_ip: '10.10.10.10', user_agent: 'Safari')
 
       expect {
         controller.send(:sign_in, user)
       }.to change(user, :last_login_at)
 
       expect(controller).to have_received(:sign_out)
-      expect(Session).to have_received(:generate_for_user!)
+      expect(controller.instance_variable_get(:@current_session)).not_to be_nil
     end
   end
 

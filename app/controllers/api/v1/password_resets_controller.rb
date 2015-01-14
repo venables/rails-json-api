@@ -4,8 +4,12 @@ class Api::V1::PasswordResetsController < Api::V1::ApplicationController
 
   def create
     user = User.where(email: params[:email].try(:downcase)).first
-    if password_reset = PasswordReset.generate_for_user!(user)
-      UserMailer.reset_password_email(user, password_reset.token).deliver_later
+
+    if user
+      password_reset = user.password_resets.new
+      if password_reset.save
+        UserMailer.reset_password_email(password_reset).deliver_later
+      end
     end
 
     head :created
@@ -13,6 +17,7 @@ class Api::V1::PasswordResetsController < Api::V1::ApplicationController
 
   def update
     if @password_reset.user.update_attributes(password_reset_params)
+      @password_reset.user.sessions.delete_all
       @password_reset.destroy
       head :no_content
     else
@@ -27,7 +32,7 @@ class Api::V1::PasswordResetsController < Api::V1::ApplicationController
   end
 
   def find_password_reset
-    @password_reset = PasswordReset.load_from_token(params[:id])
+    @password_reset = PasswordReset.not_expired.where(token: params[:id]).first
 
     unless @password_reset
       head :not_found

@@ -46,8 +46,9 @@ module Authentication
   def current_session
     return @current_session if @current_session
 
-    authenticate_with_http_token do |token, options|
-      @current_session = Session.generate_from_signed_token(token)
+    authenticate_with_http_token do |signed_token, options|
+      raw_token = Session.token_from_signed_token(signed_token)
+      @current_session = Session.not_expired.where(token: raw_token).first
     end
   end
 
@@ -102,8 +103,13 @@ module Authentication
   # Returns the signed-in user.
   def sign_in(user)
     sign_out
+
     user.touch(:last_login_at)
-    @current_session = Session.generate_for_user!(user)
+    user_session = user.sessions.new(ip_address: request.remote_ip, user_agent: request.user_agent)
+    if user_session.save
+      user.password_resets.delete_all
+      @current_session = user_session
+    end
   end
 
   # Internal: Sign out the currently signed-in user by resetting the session

@@ -1,8 +1,15 @@
 class User < ActiveRecord::Base
   has_secure_password
 
+  has_many :sessions, dependent: :destroy
+  has_many :password_resets, dependent: :destroy
+
   validates :email, presence: true, uniqueness: true, format: /.+\@.+\..+/
   validates :password, length: { minimum: 6 }
+
+  before_create do
+    self.last_login_at = Time.now
+  end
 
   # Public: Authenticate a user with a given email and password.
   #
