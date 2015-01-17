@@ -19,7 +19,7 @@ describe UserMailer, type: :mailer do
     let(:password_reset) { FactoryGirl.build(:password_reset) }
 
     it 'delivers the correct email' do
-      mail = UserMailer.reset_password_email(password_reset.user, password_reset.token)
+      mail = UserMailer.reset_password_email(password_reset)
 
       expect(mail).to deliver_to(password_reset.user.email)
       expect(mail).to have_subject(I18n.t('user_mailer.reset_password_email.subject'))

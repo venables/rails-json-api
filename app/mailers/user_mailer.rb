@@ -6,10 +6,10 @@ class UserMailer < ActionMailer::Base
     mail to: user.email, from: "matt@rails_json_api.com"
   end
 
-  def reset_password_email(user, token)
-    @user = user
-    @token = token
-    mail to: user.email
+  def reset_password_email(password_reset)
+    @user = password_reset.user
+    @token = password_reset.token
+    mail to: @user.email
   end
 
 end

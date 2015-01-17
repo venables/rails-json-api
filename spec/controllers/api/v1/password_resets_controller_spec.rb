@@ -41,11 +41,7 @@ describe Api::V1::PasswordResetsController, type: :controller do
 
     context 'with a valid token' do
       let(:user) { FactoryGirl.create(:user) }
-      let(:password_reset) { FactoryGirl.build(:password_reset, user: user) }
-
-      before do
-        allow(PasswordReset).to receive_messages(load_from_token: password_reset)
-      end
+      let(:password_reset) { FactoryGirl.create(:password_reset, user: user) }
 
       context 'with bad passwords' do
         it 'throws an error if passwords are not valid' do
@@ -60,7 +56,6 @@ describe Api::V1::PasswordResetsController, type: :controller do
 
       context 'with valid passwords' do
         it 'changes the password and redirect to the sign-in screen' do
-
           put :update, id: password_reset.token, password: 'new-password'
 
           expect(response).to have_http_status(:no_content)
